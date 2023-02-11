@@ -150,13 +150,16 @@ class Tools
         }
         $server_name = $_SERVER['SERVER_NAME'];
         $uri = $_SERVER['REQUEST_URI'];
-        if (parse_url($uri, PHP_URL_PATH)) {
-            $path = explode('/', parse_url($uri, PHP_URL_PATH));
-            // print_r($path);
-            return $protocolo . '://' . $server_name . '/' . $path[1] . '/';
-        } else {
-            return $protocolo . '://' . $server_name . '/';
-        }
+        // $uri = explode("/", parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+        // $uri(array_slice($uri, -2, 1)[0]);
+
+        // if ($uri == ROOT_PATH) {
+        //     // $path = explode('/', parse_url($uri, PHP_URL_PATH));
+        //     // print_r($path);
+        // } else {
+        //     return $protocolo . '://' . $server_name . '/';
+        // }
+        return $protocolo . '://' . $server_name . '/' . $uri . '/';
     }
     public static function moneyFormat($amount, $currency = 'BS', $useSimbol = true)
     {
