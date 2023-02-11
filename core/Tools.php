@@ -143,23 +143,25 @@ class Tools
     }
     public static function baseUrl()
     {
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
-            $protocolo = 'https';
-        } else {
-            $protocolo = 'http';
-        }
-        $server_name = $_SERVER['SERVER_NAME'];
-        $uri = $_SERVER['REQUEST_URI'];
-        // $uri = explode("/", parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+        // if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+        //     $protocolo = 'https';
+        // } else {
+        //     $protocolo = 'http';
+        // }
+        // $server_name = $_SERVER['SERVER_NAME'];
+        // $uri = $_SERVER['REQUEST_URI'];
+        // // $uri = explode("/", parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
         // $uri(array_slice($uri, -2, 1)[0]);
 
         // if ($uri == ROOT_PATH) {
         //     // $path = explode('/', parse_url($uri, PHP_URL_PATH));
         //     // print_r($path);
+        //     return $protocolo . '://' . $server_name . '/' . $uri . '/';
         // } else {
         //     return $protocolo . '://' . $server_name . '/';
         // }
-        return $protocolo . '://' . $server_name . '/' . $uri . '/';
+        $protocol = empty($_SERVER['HTTPS']) ? 'http' : 'https';
+        return $protocol . '://' . $_SERVER['SERVER_NAME'] . dirname($_SERVER['SCRIPT_NAME']) . '/';
     }
     public static function moneyFormat($amount, $currency = 'BS', $useSimbol = true)
     {
