@@ -8,9 +8,9 @@
   },
   "license": "MIT",
   "autoload": {
-    "psr-4": {
-      "Farmasic\\Core\\": "src/"
-    }
+    "files": [
+      "src/config/autoload.php"
+    ]
   },
   "minimum-stability": "alpha",
   "authors": [
