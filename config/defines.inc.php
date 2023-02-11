@@ -13,11 +13,11 @@ session_set_cookie_params(28800);
 
 // Defines directory
 $currentDir = dirname(__FILE__);
-if (!defined('ROOT_DIR')) {
-    define('ROOT_DIR', realpath($currentDir . '/..'));
+if (!defined('CURRENT_DIR')) {
+    define('CURRENT_DIR', realpath($currentDir . '/..'));
 }
 if (!defined('CORE_DIR')) {
-    define('CORE_DIR', ROOT_DIR . '/core/');
+    define('CORE_DIR', CURRENT_DIR . '/core/');
 }
 if (!defined('CONTROLLER_DIR')) {
     define('CONTROLLER_DIR', ROOT_DIR . '/controllers/');
@@ -26,11 +26,11 @@ if (!defined('MODULE_DIR')) {
     define('MODULE_DIR', ROOT_DIR . '/modules/');
 }
 if (!defined('CONFIG_DIR')) {
-    define('CONFIG_DIR', ROOT_DIR . '/config/');
+    define('CONFIG_DIR', CURRENT_DIR . '/config/');
 }
-if (!defined('IMGAES_DIR')) {
-    define('IMGAES_DIR', ROOT_DIR . '/images/');
-}
+// if (!defined('IMGAES_DIR')) {
+//     define('IMGAES_DIR', ROOT_DIR . '/images/');
+// }
 if (!defined('VAR_DIR')) {
     define('VAR_DIR', ROOT_DIR . '/var/');
 }
@@ -42,3 +42,4 @@ if (_MODE_DEV_ === true) {
 } else {
     @ini_set('display_errors', 'off');
 }
+// require_once realpath(dirname(__FILE__)) . '/autoload.php';

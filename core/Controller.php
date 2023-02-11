@@ -65,7 +65,7 @@ class Controller
 
       ClassSmarty::getInstance()->setVal(
          'js',
-         Tools::findFilesToUrl(ROOT_DIR  . '/js', array('js'))
+         Tools::findFilesToUrl(CURRENT_DIR  . '/js', array('js'))
       );
       $rutaLayout = $this->theme_dir . 'templates/' . $this->layout . '.tpl';
       if (is_readable($rutaLayout)) {

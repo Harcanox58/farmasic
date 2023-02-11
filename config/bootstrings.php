@@ -1,6 +1,8 @@
 
 <?php
-$config = require_once CONFIG_DIR . 'parameters.php';
+// echo ROOT_DIR . '/config/parameters.php';
+// exit;
+$config = require_once ROOT_DIR . '/config/parameters.php';
 define('_DB_HOST_', $config['parameters']['database']['database_host']);
 define('_DB_NAME_', $config['parameters']['database']['database_name']);
 define('_DB_PORT_', $config['parameters']['database']['database_port']);

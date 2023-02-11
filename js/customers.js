@@ -1,0 +1,2 @@
+function generatePassword() {}
+function savePassword() {}

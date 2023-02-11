@@ -1,5 +1,5 @@
 <?php
-class HelperForm
+class HelperFormold
 {
    public $submit_action, $form_type, $method = 'POST';
    public $formTabs;
@@ -201,9 +201,5 @@ class HelperForm
       // $formHtml .= '<button type="submit" class="btn btn-primary">Submit</button>';
       // $formHtml .= '</form>';
       return $formHtml;
-   }
-   public function FunctionName(Type $var = null)
-   {
-      # code...
    }
 }

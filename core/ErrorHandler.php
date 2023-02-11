@@ -113,8 +113,10 @@ function handler($errno, $errstr, $errfile, $errline)
 
     if (LOG_ERRORS)
         $report = "[" . date("Y-m-d h:m:s") . "] [$typestr: $errstr] [IN FILE $errfile] [LINE $errline]\n";
-    if (!is_dir(VAR_DIR . '/log')) {
-        mkdir(VAR_DIR . '/log');
+    if (!is_dir(VAR_DIR)) {
+        mkdir(VAR_DIR);
+        if (!is_dir(VAR_DIR) . 'log')
+            mkdir(VAR_DIR . 'log');
     }
     error_log($report, 3, VAR_DIR . '/log/'  . 'error.log');
 

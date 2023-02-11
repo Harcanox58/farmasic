@@ -84,7 +84,7 @@ class Dispatcher
                 $rutaControlador = CONTROLLER_DIR . 'front/'  . ucfirst($controlador) . '.php';
                 break;
         }
-        echo $rutaControlador . '<br>';
+        // echo $rutaControlador . '<br>';
         // exit;
         if (is_readable($rutaControlador)) {
             require_once $rutaControlador;

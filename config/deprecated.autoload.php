@@ -1,13 +1,15 @@
 <?php
-require_once ROOT_DIR . '/vendor/autoload.php';
+require_once  realpath(dirname('..')) . '/vendor/autoload.php';
+// require_once  realpath(dirname(__FILE__)) . '/defines.inc.php';
+require_once realpath(dirname(__FILE__)) . '/define_uri.inc.php';
+require_once realpath(dirname(__FILE__)) . '/bootstrings.php';
+print_r(get_required_files());
 spl_autoload_register(function ($className) {
     $arr_dir = array(
         realpath(dirname(__FILE__)),
-        CORE_DIR,
-        ROOT_DIR . '/vendor/',
-        ROOT_DIR . '/classes/',
-        ROOT_DIR . '/libs/',
-        ROOT_DIR . '/pdf/'
+        CURRENT_DIR . '/core/',
+        CURRENT_DIR . '/config/',
+        CURRENT_DIR . '/classes/',
     );
     $arr_ext = array(
         '.php',

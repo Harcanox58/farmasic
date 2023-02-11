@@ -9,13 +9,21 @@
   "license": "MIT",
   "autoload": {
     "files": [
-      "src/config/autoload.php"
+      "config/defines.inc.php",
+      "config/bootstrings.php",
+      "config/define_uri.inc.php"
+    ],
+    "classmap": [
+      "config/",
+      "core/",
+      "classes"
     ]
   },
-  "minimum-stability": "alpha",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "authors": [
     {
-      "name": "Harcanox58"
+      "name": "Carlos Sandrea"
     }
   ]
 }

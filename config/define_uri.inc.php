@@ -3,12 +3,11 @@
 /* Theme URLs */
 define('THEME_NAME', Configuration::get('FS_THEME_NAME'));
 define('DEFAULT_THEME_NAME', Configuration::get('FS_DEFAULT_THEME_NAME'));
-
 if (!defined('ADMIN_DIR')) {
     if ('THEME_NAME' != 'DEFAULT_THEME_NAME') {
-        define('THEME_DIR', CURRENT_DIR . '/themes/'  . THEME_NAME . '/');
+        define('THEME_DIR', ROOT_DIR . '/themes/'  . THEME_NAME . '/');
     } else {
-        define('THEME_DIR', CURRENT_DIR . '/themes/' . DEFAULT_THEME_NAME . '/');
+        define('THEME_DIR', ROOT_DIR . '/themes/' . DEFAULT_THEME_NAME . '/');
     }
 } else {
     if ('THEME_NAME' != 'DEFAULT_THEME_NAME') {
