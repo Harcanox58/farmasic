@@ -91,20 +91,23 @@ class Customers
    }
    public static function uploadDocuments()
    {
-      $sql = "SELECT id_document FROM `" . _DB_PREFIX_ . "documents` WHERE op_document_type='" . Tools::getValue('type') . "' AND id_entity='" . Session::get('_uid') . "'";
+      if (Tools::fileUpload('img', IMG_DIR . 'd/' . Session::get('_uid') . '/')) {
+         echo 'subido';
+      }
+      print_r($_FILES['img']['name']);
+      exit;
+      $sql = "SELECT id_document FROM `fs_documents` WHERE op_document_type='" . Tools::getValue('type') . "' AND id_entity='" . Session::get('_uid') . "'";
       $res = Db::getInstance()->Execute($sql);
       if (!$res['id_document'] != 0) {
-         if (Tools::fileUpload('img', IMG_DIR . 'd/' . Session::get('_uid') . '/')) {
-            $sql = "INSERT INTO `" . _DB_PREFIX_ . "documents`(`id_entity`, `op_document_type`, `expire_date`, `img_support`) VALUES ('" . Session::get('_uid') . "','" . Tools::getValue('type') . "','" . Tools::getValue('expire_date') . "','" . Tools::getValue('img')['name'] . "')";
-            if (Db::getInstance()->Execute($sql)) {
-               return true;
-            } else {
-               return false;
-            }
+         $sql = "INSERT INTO `fs_documents`(`id_entity`, `op_document_type`, `expire_date`, `img_support`) VALUES ('" . Session::get('_uid') . "','" . Tools::getValue('type') . "','" . Tools::getValue('expire_date') . "','" . Tools::getValue('img')['name'] . "')";
+         if (Db::getInstance()->Execute($sql)) {
+            return true;
+         } else {
+            return false;
          }
       } else {
          if (Tools::fileUpload('img', IMG_DIR . 'd/' . Session::get('_uid') . '/')) {
-            $sql = "UPDATE `" . _DB_PREFIX_ . "documents` SET `expire_date`='" . Tools::getValue('expire_date') . "',`img_support`='" . Tools::getValue('img')['name'] . "' WHERE id_document='" . Tools::getValue('id') . "'";
+            $sql = "UPDATE `fs_documents` SET `expire_date`='" . Tools::getValue('expire_date') . "',`img_support`='" . Tools::getValue('img')['name'] . "' WHERE id_document='" . Tools::getValue('id') . "'";
             if (Db::getInstance()->Execute($sql)) {
                return true;
             } else {

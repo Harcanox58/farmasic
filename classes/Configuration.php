@@ -12,11 +12,11 @@ class Configuration
    }
    public static function set($name, $value)
    {
-      $response = Configuration::get($name);
-      if (!$response) {
-         Db::getInstance()->execute('INSERT INTO ' . _DB_PREFIX_ . 'configuration (name,value) VALUES (?,?)', [$name, $value]);
+      $response = Db::getInstance()->execute("SELECT id_configuration FROM fs_configurations WHERE `name` = '" . $name . "'");
+      if (empty($response)) {
+         Db::getInstance()->execute('INSERT INTO fs_configurations (name,value) VALUES (?,?)', [$name, $value]);
       } else {
-         Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'configuration SET value = ? WHERE name = ?', [$value, $name]);
+         Db::getInstance()->execute('UPDATE fs_configurations SET value = ? WHERE name = ?', [$value, $name]);
       }
    }
 }

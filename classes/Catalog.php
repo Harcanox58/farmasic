@@ -561,7 +561,7 @@ class Catalog
    }
    public static function countProductsInCatalog()
    {
-      $sql = "SELECT count(fs_products.id_product) as res FROM fs_products WHERE op_status='A'";
+      $sql = "SELECT count(fs_products.id_product) as res FROM fs_products WHERE op_status='A' AND is_active='1'";
       $res = Db::getInstance()->Execute($sql);
       if (!empty($res)) {
          return $res['res'];

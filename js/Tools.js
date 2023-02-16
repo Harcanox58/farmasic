@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  // sendAjaxRequest();
   if ($(".select2 option").attr("selected") == "selected") {
     $(".select2").val("-1").trigger("change");
   }
@@ -45,6 +46,7 @@ $(document).ready(function () {
     order: [],
     language: lang,
   });
+  callInputMask();
   $(".money-usd").inputmask({ alias: "currencyUSD" });
   $(".money-bs").inputmask({ alias: "currencyBS" });
   $(".percentage").inputmask({ alias: "percentage" });
@@ -125,6 +127,24 @@ function changeStatusAJAX(ch, id) {
     success: function (data) {
       ajax_response(data);
     },
+  });
+}
+function sendAjaxRequest() {
+  $(".ajaxRequest").submit(function (e) {
+    console.log("ajax request");
+    e.preventDefault();
+    var form = new FormData(this);
+    form.append("request", true);
+    $.ajax({
+      type: "POST",
+      data: form,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function (data) {
+        ajax_response(data);
+      },
+    });
   });
 }
 function removeAJAX(id) {

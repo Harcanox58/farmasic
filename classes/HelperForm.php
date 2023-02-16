@@ -117,7 +117,7 @@ class HelperForm
             $html .= $this->generateLabel($i);
             $html .= '<div class="' . (isset($i['col']) && $i['col'] == true ? 'col-' . $i['col'] : 'col-4') . '">';
             $html .= '<div class="custom-control custom-switch">';
-            $html .= '<input ' . (isset($i['disabled']) && $i['disabled'] == true ? 'disabled' : '') . ' type="checkbox" class="custom-control-i" id="customSwitch1" name="' . $i['name'] . '" ' . (isset($i['required']) && $i['required'] == true ? 'required' : '') . '>';
+            $html .= '<input ' . (isset($i['disabled']) && $i['disabled'] == true ? 'disabled' : '') . ' type="checkbox" class="custom-control-input" id="customSwitch1" name="' . $i['name'] . '" ' . (isset($i['required']) && $i['required'] == true ? 'required' : '') . '>';
             $html .= '<label class="custom-control-label" for="customSwitch1"></label>';
             $html .= '</div>';
             $html .= '</div>';
@@ -199,7 +199,7 @@ class HelperForm
 
       $formHtml = '';
       if (defined('ADMIN_PATH')) {
-         $formHtml .= '<form class="' . $this->form_type . '" target="' . Tools::baseUrl() . ADMIN_PATH . '/?controller=' . $this->submit_action . (!empty(Tools::getValue('id')) ? '&id=' . Tools::getValue('id') : '') . '&token=' . Tools::getValue('token') . '" method="' . $this->method . '" enctype="multipart/form-data">';
+         $formHtml .= '<form class="' . $this->form_type . '" target="' . Tools::baseUrl() . '?controller=' . $this->submit_action . (!empty(Tools::getValue('id')) ? '&id=' . Tools::getValue('id') : '') . '&token=' . Tools::getValue('token') . '" method="' . $this->method . '" enctype="multipart/form-data">';
       } else {
          $formHtml .= '<form class="' . $this->form_type . '" target="' . Tools::baseUrl() . $this->submit_action . (!empty(Tools::getValue('id')) ? '&id=' . Tools::getValue('id') : '') . '" method="' . $this->method . '" enctype="multipart/form-data">';
       }

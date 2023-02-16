@@ -11,7 +11,8 @@
     "files": [
       "config/defines.inc.php",
       "config/bootstrings.php",
-      "config/define_uri.inc.php"
+      "config/define_uri.inc.php",
+      "config/autoload.php"
     ],
     "classmap": [
       "config/",

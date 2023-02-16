@@ -24,14 +24,14 @@ class Tools
 
         if ($url) {
             if (defined('ADMIN_DIR')) {
-                header("location:" . Tools::baseUrl() . ADMIN_PATH . $url);
+                header("location:" . Tools::baseUrl() . $url);
             } else {
                 header("location:" . Tools::baseUrl() . $url);
             }
             exit();
         } else {
             if (defined('ADMIN_DIR')) {
-                header("location:" . Tools::baseUrl() . ADMIN_PATH);
+                header("location:" . Tools::baseUrl());
             } else {
                 header("location:" . Tools::baseUrl());
             }
@@ -69,10 +69,14 @@ class Tools
         header('Content-Type: application/json');
         echo json_encode($arr);
     }
+    public static function jsonEncode($arr)
+    {
+        return json_decode(json_encode($arr));
+    }
     public static function ajaxRedirectTo(string $target)
     {
         if (defined('ADMIN_DIR')) {
-            $rute = Tools::baseUrl() . ADMIN_PATH . '/?controller=' . $target . '&token=' . Tools::getValue('token');
+            $rute = Tools::baseUrl() . '?controller=' . $target . '&token=' . Tools::getValue('token');
         } else {
             $rute =  Tools::baseUrl() . $target;
         }
@@ -82,7 +86,7 @@ class Tools
     public static function ajaxRedirect(string $target)
     {
         if (defined('ADMIN_DIR')) {
-            $arr = array('redirect' => Tools::baseUrl() . ADMIN_PATH . '/?controller=' . $target . '&token=' . Tools::getValue('token'));
+            $arr = array('redirect' => Tools::baseUrl() . '?controller=' . $target . '&token=' . Tools::getValue('token'));
         } else {
             $arr = array('redirect' => Tools::baseUrl() . $target);
         }
@@ -260,7 +264,7 @@ class Tools
     public static function ajaxRequest($request)
     {
         if (defined('ADMIN_DIR')) {
-            return Tools::baseUrl() . ADMIN_PATH . '/?controller=' . $request . '&token=' . Tools::getValue('token');
+            return Tools::baseUrl()  . '?controller=' . $request . '&token=' . Tools::getValue('token');
         } else {
             return Tools::baseUrl() . $request;
         }

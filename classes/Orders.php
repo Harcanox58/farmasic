@@ -82,7 +82,8 @@ class Orders
    }
    public static function getItemsByOrderId()
    {
-      $sql = "SELECT ol.id_order_line,ol.id_order,ol.id_product,p.name,ol.quantity, ol.amount, ol.amount_usd,(ol.amount *ol.quantity) AS total, (ol.amount_usd *ol.quantity) AS total_usd, (SELECT SUM(current_stock) FROM fs_stock WHERE id_product=ol.id_product) AS current_stock FROM fs_order_lines AS ol INNER JOIN fs_products AS p ON p.id_product=ol.id_product WHERE ol.id_order='" . Tools::getValue('id') . "' ORDER BY ol.id_order_line";
+      Db::getInstance()->Execute('SET @num_row=0;');
+      $sql = "SELECT  (@num_row:=@num_row+1) AS num_row, external.* FROM (SELECT ol.id_order_line,ol.id_order,ol.id_product,p.name,ol.quantity, ol.amount, ol.amount_usd,(ol.amount *ol.quantity) AS total, (ol.amount_usd *ol.quantity) AS total_usd, p.`code`, p.`price`,p.`price_usd`, (SELECT SUM(current_stock) FROM fs_stock WHERE id_product=ol.id_product) AS current_stock FROM fs_order_lines AS ol INNER JOIN fs_products AS p ON p.id_product=ol.id_product WHERE ol.id_order='" . Tools::getValue('id') . "' ORDER BY ol.id_order_line) external";
       $res = Db::getInstance()->ExecuteS($sql);
       if (!empty($res)) {
          return $res;
@@ -157,7 +158,7 @@ class Orders
    }
    public static function fetch_lines()
    {
-      $sql = "SELECT * FROM	fs_cart_lines WHERE op_status<>'E' AND id_cart = '" . Cart::getCurrentCart() . "'";
+      $sql = "SELECT * FROM fs_cart_lines WHERE op_status<>'E' AND id_cart = '" . Cart::getCurrentCart() . "'";
       $cart_lines = Db::getInstance()->ExecuteS($sql);
       foreach ($cart_lines as $cl) {
          $sql = "INSERT INTO `fs_order_lines`(`id_order`, `id_product`, `quantity`, `amount`, `amount_usd`, `created_at`) VALUES ('" . Cart::getCurrentCart() . "','" . $cl['id_product'] . "','" . $cl['quantity'] . "','" . $cl['total'] . "','" . $cl['total_usd'] . "',NOW())";

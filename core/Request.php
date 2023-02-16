@@ -24,8 +24,9 @@ class Request
             }
             $this->_argumentos = $url;
         }
+        // echo $this->_controlador;
         if (!$this->_controlador) {
-            $this->_controlador = 'login';
+            $this->_controlador = DEFAULT_CONTROLLER;
         }
         if (!$this->_metodo) {
             $this->_metodo = 'index';

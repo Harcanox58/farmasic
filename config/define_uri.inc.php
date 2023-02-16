@@ -1,6 +1,7 @@
 
 <?php
 /* Theme URLs */
+// echo Configuration::get('FS_THEME_NAME');
 define('THEME_NAME', Configuration::get('FS_THEME_NAME'));
 define('DEFAULT_THEME_NAME', Configuration::get('FS_DEFAULT_THEME_NAME'));
 if (!defined('ADMIN_DIR')) {
@@ -23,7 +24,7 @@ if (!defined('_DEFAULT_LAYOUT_')) {
 /* Image URLs */
 define('IMG_DIR', ROOT_DIR . '/img/');
 define('TMP_IMG_DIR', IMG_DIR . 'tmp/');
-define('IMG_URI', Tools::baseUrl() . 'img/');
+define('IMG_URI', Tools::pathToURL(IMG_DIR));
 define('CAT_DIR', IMG_DIR . 'c/');
 define('PROD_DIR', IMG_DIR . 'p/');
 define('MANU_DIR', IMG_DIR . 'm/');
@@ -35,3 +36,4 @@ define('COL_DIR', IMG_DIR . 'co/');
 define('GENDERS_DIR', IMG_DIR . 'genders/');
 define('PROD_URI', IMG_URI . 'p/');
 define('CAT_URI', IMG_URI . 'c/');
+define('ROOT_URI', Tools::pathToURL(ROOT_DIR));

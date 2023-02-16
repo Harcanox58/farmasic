@@ -1,15 +1,8 @@
 <?php
-require_once  realpath(dirname('..')) . '/vendor/autoload.php';
-// require_once  realpath(dirname(__FILE__)) . '/defines.inc.php';
-require_once realpath(dirname(__FILE__)) . '/define_uri.inc.php';
-require_once realpath(dirname(__FILE__)) . '/bootstrings.php';
-print_r(get_required_files());
 spl_autoload_register(function ($className) {
     $arr_dir = array(
         realpath(dirname(__FILE__)),
-        CURRENT_DIR . '/core/',
-        CURRENT_DIR . '/config/',
-        CURRENT_DIR . '/classes/',
+        ROOT_DIR . '/pdf/',
     );
     $arr_ext = array(
         '.php',

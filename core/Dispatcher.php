@@ -76,7 +76,12 @@ class Dispatcher
                 $rutaControlador =  MODULE_DIR . '/controllers/' . ucfirst($controlador) . '.php';
                 break;
             default:
-                if ($controlador != 'loginController') {
+                if (defined('ADMIN_PATH')) {
+                    $defaultController = 'Admin' . DEFAULT_CONTROLLER . 'Controller';
+                } else {
+                    $defaultController = DEFAULT_CONTROLLER . 'Controller';
+                }
+                if ($controlador != $defaultController) {
                     if (!Session::get('_uid')) {
                         Tools::redirect();
                     }

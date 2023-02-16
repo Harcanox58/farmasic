@@ -11,9 +11,10 @@ class CSVImport
   {
     $rows   = array_map(
       function ($data) {
-        return str_getcsv($data, ',');
+        return str_getcsv($data, self::$line_separator);
       },
       file(ROOT_DIR . '/uploads/' . self::$filename)
+      // file(ROOT_DIR . '/uploads/' . 'products.csv')
     );
     $header = array_shift($rows);
     $csv    = [];
@@ -22,6 +23,9 @@ class CSVImport
       $csv[] = array_combine($header, str_replace(self::$value_separator, ".", $row));
     }
     self::$csv = $csv;
+    // echo '<pre>';
+    // print_r($csv);
+    // exit;
     return $csv;
   }
   public static function loadCSV_TEST()
@@ -33,9 +37,6 @@ class CSVImport
       file(ROOT_DIR . '/uploads/' . 'products_test.csv')
     );
     $header = array_shift($rows);
-    echo '<pre>';
-    print_r($rows);
-    exit;
     $csv    = [];
     foreach ($rows as $row) {
       $row = array_pad($row, count($header), "");
@@ -51,6 +52,9 @@ class CSVImport
     foreach ($data as $key => $value) {
       $rows[] = "('" . implode("','", array_slice($value, 1)) . "')";
     }
+    // echo '<pre>';
+    // print_r($rows);
+    // exit;
     return implode(",", $rows);
   }
   public static function rowUpdate()
@@ -102,11 +106,11 @@ class CSVImport
         break;
     }
     if (!$forceID) {
-      $sql = "INSERT INTO " . self::$table . ' ' . self::insertFields() . ' ' . self::rowsInsert();
-      print_r($sql);
+      $sql = "INSERT INTO " . self::$table . ' ' . self::insertFields() . ' VALUES ' . self::rowsInsert();
     } else {
       $sql = implode(';', SELF::rowUpdate());
     }
+    // print_r($sql);
     try {
       Db::getInstance()->Execute($sql);
       Tools::ajaxResponse(['response' => ['type' => 'success', 'message' => 'Datos importados exitosamente.']]);
@@ -125,16 +129,16 @@ class CSVImport
         $fields = "(`id_brand`, `id_category`, `id_tax`, `id_active_compound`, `id_discount`, `id_supplier`, `ref`, `name`, `short_description`, `description`, `code`, `bar_code`, `price_cost`, `price`, `price_unit`, `price_unit_usd`, `price_usd`, `price_suggested`, `price_suggested_usd`, `net_price`, `net_price_usd`, `img_name`, `min_sell`, `max_sell`, `multiple_sell`, `units_per_pack`, `codisb`, `expire_at`, `created_at`, `profit_margin`, `is_active`, `is_regulated`, `is_featured`, `op_status`) VALUES ";
         break;
       case 'fs_categories':
-        $fields = '(`id_category`, `name`, `img`, `is_active`, `is_deleted`, `num_order`)';
+        $fields = '(`name`, `img`, `is_active`, `is_deleted`, `num_order`)';
         break;
       case 'fs_brands':
-        $fields = '(`id_brand`, `name`, `img`, `op_status`)';
+        $fields = '(`name`, `img`, `op_status`)';
         break;
       case 'fs_entities':
-        $fields = '(`id_entity`, `id_role`, `dni`, `code`, `company_name`, `firstname`, `lastname`, `username`, `email`, `password`, `address`, `trade_discount`, `credit_limit`, `credit_time`, `contact_person`, `phone`, `op_city`, `op_state`, `op_country`, `last_connection`, `date_creation`, `is_active`, `is_deleted`, `op_status`)';
+        $fields = '(`id_role`, `dni`, `code`, `company_name`, `firstname`, `lastname`, `username`, `email`, `password`, `address`, `trade_discount`, `credit_limit`, `credit_time`, `contact_person`, `phone`, `op_city`, `op_state`, `op_country`, `last_connection`, `date_creation`, `is_active`, `is_deleted`, `op_status`)';
         break;
       case 'fs_comparator':
-        $fields = '(`id_comparator_entry`, `id_active_compount`, `product_name`, `provider`, `price`, `price_usd`)';
+        $fields = '(`product_name`, `provider`, `price`, `price_usd`)';
         break;
     }
     return $fields;

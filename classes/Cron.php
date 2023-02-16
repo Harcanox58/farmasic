@@ -3,7 +3,7 @@ require '../config/config.inc.php';
 
 class Cron
 {
-   public static function deploy()
+   public static function init()
    {
       echo '<pre>';
       echo '<b>COMENZANDO PROCESO...</b><br>';
@@ -105,4 +105,3 @@ class Cron
       file_put_contents(ROOT_DIR . '/var/log/cron.log', $log, FILE_APPEND);
    }
 }
-Cron::deploy();

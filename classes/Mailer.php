@@ -20,6 +20,7 @@ class Mailer
       $mail->Password   = 'HWqnxOL?Wn({';                               //SMTP password
       $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
       $mail->Port       = 465;
+      $mail->CharSet = "UTF-8";
       for ($i = 0; $i < count($addresses); $i++) {
          $mail->addAddress($addresses[$i]);     //Add a sender
       }
@@ -30,7 +31,7 @@ class Mailer
          $com = $host == 'localhost' ? '.com' : '';
          $email = 'info@' . $host . $com;
          echo $email;
-         $mail->setFrom($email, 'test');
+         $mail->setFrom($email, 'SISTEMA FARMASIC[DROVAZCA]');
       }
       $mail->isHTML(true);                                  //Set email format to HTML
       $mail->Subject = $subject;
@@ -38,9 +39,11 @@ class Mailer
       // dev($mail);
       try {
          $mail->send();
+         return true;
          // echo 'Message has been sent';
       } catch (\Throwable $th) {
          throw $th;
+         return false;
       }
    }
 }

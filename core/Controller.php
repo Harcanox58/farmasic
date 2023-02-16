@@ -10,8 +10,8 @@ class Controller
       $this->_peticion = new Request();
       if (defined('ADMIN_DIR')) {
          $this->theme_dir = THEME_ADMIN_DIR;
-         $this->assets = Tools::baseUrl() . ADMIN_PATH . '/themes/classic/assets/';
-         ClassSmarty::getInstance()->setVal('baseUrl', Tools::baseUrl() . ADMIN_PATH . '/');
+         $this->assets = Tools::baseUrl()  . 'themes/classic/assets/';
+         ClassSmarty::getInstance()->setVal('baseUrl', Tools::baseUrl());
       } else {
          $this->theme_dir = THEME_DIR;
          $this->assets = Tools::baseUrl() . 'themes/classic/assets/';
@@ -122,7 +122,7 @@ class Controller
                if ($type == 'F') {
                   $html .= '         <a href="' . Tools::baseUrl() . $item['link'] . '" class="nav-link">';
                } else {
-                  $html .= '         <a href="' . Tools::baseUrl() . ADMIN_PATH . '/?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link {if isset($template.active)}{$template.active}{/if}">';
+                  $html .= '         <a href="' . Tools::baseUrl()  . '?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link {if isset($template.active)}{$template.active}{/if}">';
                }
                // $html .= ' <i class="text-sm nav-icon ' . $item['icon'] . '"></i>';
                $html .= ' <p class="text-xs">';
@@ -140,7 +140,7 @@ class Controller
             if ($type == 'F') {
                $html .= '<a href="' . Tools::baseUrl() . $item['link'] . '" class="nav-link text-sm">';
             } else {
-               $html .= ' <a href="' . Tools::baseUrl() . ADMIN_PATH . '/?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link">';
+               $html .= ' <a href="' . Tools::baseUrl()  . '?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link">';
             }
             $html .= ' <i class="text-md nav-icon ' . $item['icon'] . '"></i>';
             $html .= ' <p class="text-xs">';
@@ -178,7 +178,7 @@ class Controller
    protected function ajaxRedirect(string $target)
    {
       if (defined('ADMIN_DIR')) {
-         $arr = array('redirect' => Tools::baseUrl() . ADMIN_PATH . '/?controller=' . $target . '&token=' . Tools::getValue('token'));
+         $arr = array('redirect' => Tools::baseUrl()  . '?controller=' . $target . '&token=' . Tools::getValue('token'));
       } else {
          $arr = array('redirect' => Tools::baseUrl() . $target);
       }
@@ -188,7 +188,7 @@ class Controller
    protected function ajaxRedirectTo(string $target)
    {
       if (defined('ADMIN_DIR')) {
-         $rute = Tools::baseUrl() . ADMIN_PATH . '/?controller=' . $target . '&token=' . Tools::getValue('token');
+         $rute = Tools::baseUrl()  . '?controller=' . $target . '&token=' . Tools::getValue('token');
       } else {
          $rute =  Tools::baseUrl() . $target;
       }
