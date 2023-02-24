@@ -1,7 +1,6 @@
 <?php
 class Cart
 {
-
    public static function addItemToCart()
    {
       if (self::verifiqueEmptyCart() && !self::currentCartIsOpen()) {
@@ -120,7 +119,7 @@ class Cart
       if (self::verifiqueLine()) {
          $sql = "UPDATE fs_cart_lines SET `quantity`='" . self::calcQuantity() . "', total='" . $total['total'] . "',total_usd='" . $total['total_usd'] . "' WHERE id_product='" . Tools::getValue('product') . "' AND id_cart='" . Cart::getCurrentCart() . "'";
       } else {
-         $sql = "INSERT INTO `fs_cart_lines`(`id_cart`, `id_product`, `quantity`, `total`, `total_usd`,`op_status`,`product_type`) VALUES ('" . Cart::getCurrentCart() . "','" . Tools::getValue('product') . "','" . self::calcQuantity() . "','" . $total['total'] . "','" . $total['total_usd'] . "','A','" . $type . "')";
+         $sql = "INSERT INTO `fs_cart_lines`(`id_cart`, `id_product`, `quantity`, `total`, `total_usd`,`discount_percentage`,`tax_rate`,`op_status`,`product_type`) VALUES ('" . Cart::getCurrentCart() . "','" . Tools::getValue('product') . "','" . self::calcQuantity() . "','" . $total['total'] . "','" . $total['total_usd'] . "','" . Cart::getDiscountPercentage() . "','" . Cart::getTaxRate() . "','A','" . $type . "')";
       }
       Cart::updateStock();
       if (Db::getInstance()->Execute($sql)) {
@@ -132,19 +131,19 @@ class Cart
    }
    private static function calcAmount()
    {
-      $sql = "SELECT net_price,net_price_usd FROM fs_products WHERE id_product='" . Tools::getValue('product') . "'";
+      $sql = "SELECT price_suggested, price_suggested_usd FROM fs_products WHERE id_product='" . Tools::getValue('product') . "'";
       $prices = Db::getInstance()->Execute($sql);
       if (self::verifiqueLine()) {
          $currentProduct = self::getCurrentProductPerLine();
          $newQuantity = $currentProduct['quantity'] + Tools::getValue('quantity');
          return [
-            'total' => $prices['net_price'] * $newQuantity,
-            'total_usd' => $prices['net_price_usd'] * $newQuantity
+            'total' => $prices['price_suggested'] * $newQuantity,
+            'total_usd' => $prices['price_suggested_usd'] * $newQuantity
          ];
       } else {
          return [
-            'total' => $prices['net_price'] * Tools::getValue('quantity'),
-            'total_usd' => $prices['net_price_usd'] * Tools::getValue('quantity')
+            'total' => $prices['price_suggested'] * Tools::getValue('quantity'),
+            'total_usd' => $prices['price_suggested_usd'] * Tools::getValue('quantity')
          ];
       }
    }
@@ -316,7 +315,7 @@ class Cart
    }
    public static function getTotals()
    {
-      $sql = "SELECT SUM(total) as total,SUM(total_usd) as total_usd FROM `fs_cart_lines` WHERE id_cart='" . Cart::getCurrentCart() . "' AND op_status='A'";
+      $sql = "SELECT SUM(total) as total, ROUND(SUM(total * (discount_percentage/100)),2) as discount,ROUND(SUM(total_usd * (discount_percentage/100)),2) as discount_usd, ROUND(SUM(total * (tax_rate/100)),2) as tax, ROUND(SUM(total_usd * (tax_rate/100)),2) as tax_usd,SUM(total_usd) as total_usd FROM `fs_cart_lines` WHERE id_cart='" . Cart::getCurrentCart() . "' AND op_status='A'";
       $res = Db::getInstance()->Execute($sql);
       if (!empty($res)) {
          return $res;
@@ -326,7 +325,7 @@ class Cart
    }
    public static function getTotalsBS()
    {
-      $sql = "SELECT SUM(total) as total FROM `fs_cart_lines` WHERE id_cart='" . Cart::getCurrentCart() . "' AND op_status='A'";
+      $sql = "SELECT SUM(ROUND(CASE WHEN discount_percentage IS NOT NULL THEN (total - (total * (discount_percentage / 100)) + (total * (tax_rate / 100)))  ELSE total END ,2)) as total FROM `fs_cart_lines` WHERE id_cart ='" . Cart::getCurrentCart() . "' AND op_status='A'";
       $res = Db::getInstance()->Execute($sql);
       if (!empty($res)) {
          return $res['total'];
@@ -334,9 +333,41 @@ class Cart
          return false;
       }
    }
+   public static function getTaxRate()
+   {
+      $res = Db::getInstance()->Execute("SELECT ft.rate FROM fs_taxes AS ft INNER JOIN fs_products AS fp ON ft.id_tax = fp.id_tax WHERE fp.id_product='" . Tools::getValue('product') . "'");
+      if (!empty($res)) {
+         return $res['rate'];
+      } else {
+         return false;
+      }
+   }
+   public static function calcDiscountPerLine()
+   {
+      $percentage = self::getDiscountPercentage();
+      $totals = self::calcAmount();
+
+      $discount = ($totals['total'] * $percentage) + $totals['total'];
+      $discount_usd = ($totals['total_usd'] * $percentage) + $totals['total_usd'];
+
+      return [
+         'amount' => $discount,
+         'amount_usd' => $discount_usd
+      ];
+   }
+   public static function getDiscountPercentage()
+   {
+      $product_percentage = Db::getInstance()->Execute("SELECT fs_discounts.percentage FROM fs_discounts INNER JOIN fs_products ON fs_discounts.id_discount = fs_products.id_discount WHERE id_product='" . Tools::getValue('product') . "'");
+      $entity_percentage = Db::getInstance()->Execute("SELECT CASE WHEN fe.trade_discount IS NULL THEN 0 ELSE fe.trade_discount END AS percentage FROM fs_entities fe WHERE id_entity='" . Session::get('_uid') . "'");
+      if ($entity_percentage['percentage'] > $product_percentage['percentage']) {
+         return $entity_percentage['percentage'];
+      } else {
+         return $product_percentage['percentage'];
+      }
+   }
    public static function getTotalsUSD()
    {
-      $sql = "SELECT SUM(total_usd) as total_usd FROM `fs_cart_lines` WHERE id_cart='" . Cart::getCurrentCart() . "' AND op_status='A'";
+      $sql = "SELECT SUM(ROUND(CASE WHEN discount_percentage IS NOT NULL THEN (total_usd - (total_usd * (discount_percentage / 100)) + (total_usd * (tax_rate / 100)))  ELSE total_usd END ,2)) as total_usd FROM `fs_cart_lines` WHERE id_cart ='" . Cart::getCurrentCart() . "' AND op_status='A'";
       $res = Db::getInstance()->Execute($sql);
       if (!empty($res)) {
          return $res['total_usd'];
@@ -346,11 +377,20 @@ class Cart
    }
    public static function checkout()
    {
-
       $sql = "UPDATE `fs_cart` SET `items_total`='" . Cart::countItems() . "',`total`='" . Cart::getTotalsBS() . "',`total_usd`='" . Cart::getTotalsUSD() . "',`op_status`='C' WHERE id_cart='" . Cart::getCurrentCart() . "' AND op_status='A'";
       if (Db::getInstance()->Execute($sql)) {
          Accounting::generateCXC(Orders::getCurrentIdOrder(), Session::get('_uid'), Cart::getTotalBS(), Cart::getTotalsUSD());
          return true;
+      } else {
+         return false;
+      }
+   }
+   public static function countItemsInCart()
+   {
+      $sql = "SELECT SUM(quantity) as count FROM `fs_cart_lines` WHERE id_cart='" . Cart::getCurrentCart() . "' AND op_status='A'";
+      $res = Db::getInstance()->Execute($sql);
+      if (!empty($res)) {
+         return $res['count'];
       } else {
          return false;
       }

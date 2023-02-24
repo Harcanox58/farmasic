@@ -197,7 +197,10 @@ function error() {
     timer: 3000,
   });
 }
-function generateP() {
+function passGenerator() {
+  $("#password").val(generatePassword());
+}
+function generatePassword() {
   var pass = "";
   var str =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz0123456789@#$";

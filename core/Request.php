@@ -9,7 +9,7 @@ class Request
             $url = filter_input(INPUT_GET, 'url', FILTER_SANITIZE_URL);
             $url = explode('/', $url);
             $this->_modules = $this->diployModules();
-            $this->_modulo = strtolower(array_shift($url));
+            $this->_modulo = mb_strtolower(array_shift($url));
             if (in_array($this->_modulo, $this->_modules)) {
                 $this->_controlador = $this->_modulo;
                 $this->_modulo = true;
@@ -18,7 +18,7 @@ class Request
                 $this->_modulo = false;
             }
             if (!Tools::getValue('action')) {
-                $this->_metodo = strtolower(array_shift($url));
+                $this->_metodo = mb_strtolower(array_shift($url));
             } else {
                 $this->_metodo = Tools::getValue('action');
             }

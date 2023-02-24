@@ -1,16 +1,50 @@
 <?php
 class Payments
 {
+   public static function getOrderExchangeRate()
+   {
+      $sql = "SELECT fo.exchange_rate FROM fs_orders fo WHERE fo.id_order='" . Tools::getValue('order') . "'";
+      $res = Db::getInstance()->Execute($sql);
+      if (!empty($res)) {
+         return $res['exchange_rate'];
+      } else {
+         return false;
+      }
+   }
+   public static function reportPayment()
+   {
+      Tools::fileUpload('img', IMG_DIR . 'cp/' . Session::get('_uid') . '/');
+      Tools::fileUpload('img_psicotropicos', IMG_DIR . 'cp/' . Session::get('_uid') . '/');
+
+      $comprobante = Tools::getValue('img')['name'];
+      $psicotripico = Tools::getValue('img_psicotropicos')['name'];
+
+      if (Tools::getValue('currency') == 1) {
+         $amount = Tools::getValue('amount');
+         $amount_usd = Tools::getValue('amount') / self::getOrderExchangeRate();
+      } else {
+         $amount = Tools::getValue('amount') * self::getOrderExchangeRate();
+         $amount_usd = Tools::getValue('amount');
+      }
+      $sql = "INSERT INTO `fs_payments`(`id_customer`, `id_order`, `id_payment_method`, `id_bank`, `op_currency`, `reference`, `exchange_rate`,`amount`,`amount_usd`, `created_at`,`img_psycho`, `img_support`, `observations`, `op_status`) VALUES ('" . Session::get('_uid') . "','" . Tools::getValue('order') . "','" . Tools::getValue('method') . "','" . Tools::getValue('bank') . "','" . Tools::getValue('currency') . "','" . Tools::getValue('ref') . "','" . self::getOrderExchangeRate() . "','" . str_replace(',', '.', $amount) . "','" . str_replace(',', '.', $amount_usd) . "',NOW(),'" . Tools::getValue('img_psicotropicos')['name'] . "','" . Tools::getValue('img')['name'] . "','" . Tools::getValue('obs') . "','P')";
+      try {
+         Db::getInstance()->Execute($sql);
+         Tools::ajaxResponse([
+            'response' => [
+               'type' => 'success',
+               'message' => 'Datos Guardados.',
+               'redirect' => Tools::baseUrl() . 'payments'
+            ],
+         ]);
+      } catch (\Throwable $th) {
+         //throw $th;
+      }
+   }
    public static function report()
    {
       if (!empty(Tools::getValue('img_psicotropicos')['name']) && !empty(Tools::getValue('img')['name'])) {
          $sql = "INSERT INTO `fs_payments`(`id_customer`, `id_order`, `id_payment_method`, `id_bank`, `op_currency`, `reference`, `amount`, `created_at`,`img_psycho`, `img_support`, `observations`, `op_status`) VALUES ('" . Session::get('_uid') . "','" . Tools::getValue('order') . "','" . Tools::getValue('method') . "','" . Tools::getValue('bank') . "','" . Tools::getValue('currency') . "','" . Tools::getValue('ref') . "','" . str_replace(',', '.', Tools::getValue('amount')) . "',NOW(),'" . Tools::getValue('img_psicotropicos')['name'] . "','" . Tools::getValue('img')['name'] . "','" . Tools::getValue('obs') . "','P')";
          if (Tools::fileUpload('img', IMG_DIR . 'cp/') && Tools::fileUpload('img_psicotropicos', IMG_DIR . 'cpp/')) {
-            if (Db::getInstance()->Execute($sql)) {
-               return true;
-            } else {
-               return false;
-            }
          }
       } elseif (!empty(Tools::getValue('img')['name'])) {
          $sql = "INSERT INTO `fs_payments`(`id_customer`, `id_order`, `id_payment_method`, `id_bank`, `op_currency`, `reference`, `amount`, `created_at`, `img_support`, `observations`, `op_status`) VALUES ('" . Session::get('_uid') . "','" . Tools::getValue('order') . "','" . Tools::getValue('method') . "','" . Tools::getValue('bank') . "','" . Tools::getValue('currency') . "','" . Tools::getValue('ref') . "','" . str_replace(',', '.', Tools::getValue('amount')) . "',NOW(),'" . Tools::getValue('img')['name'] . "','" . Tools::getValue('obs') . "','P')";
@@ -41,7 +75,7 @@ class Payments
    }
    public static function getPaymentsByCustomer()
    {
-      $sql = "SELECT p.id_payment, pm.`name`, p.created_at, p.updated_at, p.amount, CASE WHEN p.op_status ='P' THEN 'ENVIADO' WHEN p.op_status ='C' THEN 'CANCELADO' WHEN p.op_status ='R' THEN 'RECHAZADO' ELSE 'PROCESADO' END AS op_status, CASE WHEN p.op_status ='P' THEN 'success' WHEN p.op_status ='C' THEN 'navy' WHEN p.op_status ='R' THEN 'danger' ELSE 'info' END AS op_status_color FROM fs_payments as p INNER JOIN fs_payment_methods as pm ON p.id_payment_method = pm.id_payment_menthod WHERE p.id_customer ='" . Session::get('_uid') . "'";
+      $sql = "SELECT p.id_payment, pm.`name`, p.created_at, p.updated_at, p.amount,p.amount_usd, CASE WHEN p.op_status ='P' THEN 'ENVIADO' WHEN p.op_status ='C' THEN 'CANCELADO' WHEN p.op_status ='R' THEN 'RECHAZADO' ELSE 'PROCESADO' END AS op_status, CASE WHEN p.op_status ='P' THEN 'success' WHEN p.op_status ='C' THEN 'navy' WHEN p.op_status ='R' THEN 'danger' ELSE 'info' END AS op_status_color FROM fs_payments as p INNER JOIN fs_payment_methods as pm ON p.id_payment_method = pm.id_payment_menthod WHERE p.id_customer ='" . Session::get('_uid') . "'";
       $res = Db::getInstance()->ExecuteS($sql);
       if (!empty($res)) {
          return $res;

@@ -108,6 +108,7 @@ function sendToCart() {
             }
           }
         }
+        $(':input[type="number"]').val("");
       },
       error: function () {
         Swal.fire({

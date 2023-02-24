@@ -118,7 +118,7 @@ function handler($errno, $errstr, $errfile, $errline)
         if (!is_dir(VAR_DIR) . 'log')
             mkdir(VAR_DIR . 'log');
     }
-    error_log($report, 3, VAR_DIR . '/log/'  . 'error.log');
+    error_log($report, 3, VAR_DIR . 'log/'  . 'error.log');
 
     if (!($errno & ERROR_REPORTING))
         return;

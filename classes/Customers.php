@@ -71,7 +71,7 @@ class Customers
    }
    public static function getDocuments()
    {
-      $sql = "SELECT id_document, CASE WHEN op_document_type =1 THEN 'CEDUDLA DE INDENTIDAD DEL REGENTE' WHEN op_document_type =2 THEN 'COPIA DEL PERMISO DE FUNCIONAMIENTO ACTUALIZADO' WHEN op_document_type =3 THEN 'COPIA DEL TITULO COMO PROFECIONAL FARMACÉUTICO'	END AS type, expire_date,	CASE WHEN expire_date < NOW() THEN 'VENCIDO' ELSE 'VIGENTE' END AS status FROM `" . _DB_PREFIX_ . "documents` WHERE id_entity='" . Session::get('_uid') . "'";
+      $sql = "SELECT id_document, CASE WHEN op_document_type =1 THEN 'CEDUDLA DE INDENTIDAD DEL REGENTE' WHEN op_document_type =2 THEN 'COPIA DEL PERMISO DE FUNCIONAMIENTO ACTUALIZADO' WHEN op_document_type =3 THEN 'COPIA DEL TITULO COMO PROFECIONAL FARMACÉUTICO'	END AS type, DATE_FORMAT(expire_date,'%d/%m/%Y') as expire_date,	CASE WHEN expire_date < NOW() THEN 'VENCIDO' ELSE 'VIGENTE' END AS status FROM `" . _DB_PREFIX_ . "documents` WHERE id_entity='" . Session::get('_uid') . "' ORDER BY op_document_type ASC";
       $res = Db::getInstance()->ExecuteS($sql);
       if (!empty($res)) {
          return $res;
@@ -92,27 +92,24 @@ class Customers
    public static function uploadDocuments()
    {
       if (Tools::fileUpload('img', IMG_DIR . 'd/' . Session::get('_uid') . '/')) {
-         echo 'subido';
-      }
-      print_r($_FILES['img']['name']);
-      exit;
-      $sql = "SELECT id_document FROM `fs_documents` WHERE op_document_type='" . Tools::getValue('type') . "' AND id_entity='" . Session::get('_uid') . "'";
-      $res = Db::getInstance()->Execute($sql);
-      if (!$res['id_document'] != 0) {
-         $sql = "INSERT INTO `fs_documents`(`id_entity`, `op_document_type`, `expire_date`, `img_support`) VALUES ('" . Session::get('_uid') . "','" . Tools::getValue('type') . "','" . Tools::getValue('expire_date') . "','" . Tools::getValue('img')['name'] . "')";
-         if (Db::getInstance()->Execute($sql)) {
-            return true;
+         $sql = "SELECT id_document FROM `fs_documents` WHERE op_document_type='" . Tools::getValue('type') . "' AND id_entity='" . Session::get('_uid') . "'";
+         $res = Db::getInstance()->Execute($sql);
+         if (empty($res['id_document'])) {
+            $sql = "INSERT INTO `fs_documents`(`id_entity`, `op_document_type`, `expire_date`, `img_support`) VALUES ('" . Session::get('_uid') . "','" . Tools::getValue('type') . "','" . Tools::getValue('expire_date') . "','" . Tools::getValue('img')['name'] . "')";
          } else {
-            return false;
-         }
-      } else {
-         if (Tools::fileUpload('img', IMG_DIR . 'd/' . Session::get('_uid') . '/')) {
             $sql = "UPDATE `fs_documents` SET `expire_date`='" . Tools::getValue('expire_date') . "',`img_support`='" . Tools::getValue('img')['name'] . "' WHERE id_document='" . Tools::getValue('id') . "'";
-            if (Db::getInstance()->Execute($sql)) {
-               return true;
-            } else {
-               return false;
-            }
+         }
+         try {
+            Db::getInstance()->Execute($sql);
+            Tools::ajaxResponse([
+               'response' => [
+                  'type' => 'success',
+                  'message' => 'Datos Guardados.',
+               ],
+               'reloadIMG' => IMG_URI . 'd/' . Session::get('_uid') . '/' . Tools::getValue('img')['name'],
+            ]);
+         } catch (\Throwable $th) {
+            //throw $th;
          }
       }
    }
@@ -141,28 +138,18 @@ class Customers
       }
       return false;
    }
-   public static function getDocumentValid($document)
+   public static function getDocumentValid($doc)
    {
-      $sql = "SELECT expire_date FROM `" . _DB_PREFIX_ . "documents` WHERE id_entity='" . Session::get('_uid') . "' AND op_document_type='" . $document . "'";
+      $sql = "SELECT expire_date, NOW(), CASE WHEN DATE_FORMAT(expire_date,'%d-%m-%Y') >= DATE_FORMAT(NOW(),'%d-%-%Y') THEN TRUE ELSE FALSE END AS valid  FROM `fs_documents` WHERE id_entity='" . Session::get('_uid') . "' AND op_document_type='" . $doc . "'";
       $res = Db::getInstance()->Execute($sql);
-      if (empty($res)) {
-         return false;
-      } else {
-         $date1 = strtotime($res['expire_date']);
-         $date2 = strtotime(date('Y-m-d'));
-         if ($date1 < $date2) {
-            return false;
-         } else {
-            return true;
-         }
+      if ($res['valid'] != 0) {
+         return true;
       }
+      return false;
    }
    public static function validDocuments()
    {
-      $doc1 = self::getDocumentValid(1);
-      $doc2 = self::getDocumentValid(2);
-      $doc3 = self::getDocumentValid(3);
-      if ($doc1 == true && $doc2 == true && $doc3 == true) {
+      if (self::getDocumentValid(1) && self::getDocumentValid(2) && self::getDocumentValid(3)) {
          return true;
       } else {
          return false;

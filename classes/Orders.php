@@ -12,6 +12,9 @@ class Orders
          return false;
       }
    }
+   public static function validPaymentsInOrder()
+   {
+   }
    public static function getOrderByCustomers()
    {
       $sql = "SELECT id_order, CONCAT(o.order_type,'-',LPAD(o.id_order,6,'0')) AS `order`, created_at, updated_at, CASE WHEN o.op_status = 'A' THEN 'EN ESPERA DEL PAGO' WHEN o.op_status = 'C' THEN 'COMPLETADO' WHEN o.op_status = 'X' THEN 'CANCELADO' WHEN o.op_status = 'R' THEN 'PAGO RECHAZADO' END AS status,CASE WHEN o.op_status = 'A' THEN 'indigo' WHEN o.op_status = 'C' THEN 'success' WHEN o.op_status = 'X' THEN 'navy' WHEN o.op_status = 'R' THEN 'danger' END AS op_status_color, o.op_status,order_type, amount, amount_usd, exchange_rate FROM fs_orders as o WHERE id_customer='" . Session::get('_uid') . "' ORDER BY id_order DESC";
@@ -24,7 +27,7 @@ class Orders
    }
    public static function getOrdersOpenByCustomers()
    {
-      $sql = "SELECT id_order, amount, amount_usd FROM " . _DB_PREFIX_ . "orders WHERE op_status='P' AND id_customer='" . Session::get('_uid') . "'";
+      $sql = "SELECT id_order, amount, amount_usd FROM " . _DB_PREFIX_ . "orders WHERE op_status='A' AND id_customer='" . Session::get('_uid') . "'";
       $res = Db::getInstance()->ExecuteS($sql);
       if (!empty($res)) {
          return $res;
@@ -83,7 +86,7 @@ class Orders
    public static function getItemsByOrderId()
    {
       Db::getInstance()->Execute('SET @num_row=0;');
-      $sql = "SELECT  (@num_row:=@num_row+1) AS num_row, external.* FROM (SELECT ol.id_order_line,ol.id_order,ol.id_product,p.name,ol.quantity, ol.amount, ol.amount_usd,(ol.amount *ol.quantity) AS total, (ol.amount_usd *ol.quantity) AS total_usd, p.`code`, p.`price`,p.`price_usd`, (SELECT SUM(current_stock) FROM fs_stock WHERE id_product=ol.id_product) AS current_stock FROM fs_order_lines AS ol INNER JOIN fs_products AS p ON p.id_product=ol.id_product WHERE ol.id_order='" . Tools::getValue('id') . "' ORDER BY ol.id_order_line) external";
+      $sql = "SELECT (@num_row:=@num_row+1) AS num_row, external.* FROM (SELECT * FROM vw_getItemsByOrderId vw WHERE vw.id_order='" . Tools::getValue('id') . "') external";
       $res = Db::getInstance()->ExecuteS($sql);
       if (!empty($res)) {
          return $res;
@@ -103,7 +106,7 @@ class Orders
    }
    public static function getPaymentsByOrderId()
    {
-      $sql = "SELECT p.created_at, p.op_currency, p.id_payment, pm.`name` AS method,p.id_order, CASE WHEN p.op_status='A' THEN 'APROBADO' WHEN p.op_status='R' THEN 'RECHAZADO' ELSE 'PENDIENTE' END AS status,p.reference,b.num_account,b.`name`AS name_bank, p.amount,CONCAT(b.name,' (',b.num_account,')') AS bank, CASE WHEN p.op_currency = 1 THEN 'BOLIVARES' ELSE 'DÓLARES' END AS currency FROM fs_payments AS p INNER JOIN fs_payment_methods AS pm ON p.id_payment_method = pm.id_payment_menthod INNER JOIN fs_banks AS b ON p.id_bank=b.id_bank WHERE p.id_order ='" . Tools::getValue('id') . "' ORDER BY p.id_payment";
+      $sql = "SELECT p.created_at, p.op_currency, p.id_payment, pm.`name` AS method,p.id_order, CASE WHEN p.op_status='A' THEN 'APROBADO' WHEN p.op_status='R' THEN 'RECHAZADO' ELSE 'PENDIENTE' END AS status,p.reference,b.num_account,b.`name`AS name_bank, p.amount,p.amount_usd,CONCAT(b.name,' (',b.num_account,')') AS bank, CASE WHEN p.op_currency = 1 THEN 'BOLIVARES' ELSE 'DÓLARES' END AS currency FROM fs_payments AS p INNER JOIN fs_payment_methods AS pm ON p.id_payment_method = pm.id_payment_menthod INNER JOIN fs_banks AS b ON p.id_bank=b.id_bank WHERE p.id_order ='" . Tools::getValue('id') . "' ORDER BY p.id_payment";
       $res = Db::getInstance()->ExecuteS($sql);
       if (!empty($res)) {
          return $res;
@@ -160,8 +163,11 @@ class Orders
    {
       $sql = "SELECT * FROM fs_cart_lines WHERE op_status<>'E' AND id_cart = '" . Cart::getCurrentCart() . "'";
       $cart_lines = Db::getInstance()->ExecuteS($sql);
-      foreach ($cart_lines as $cl) {
-         $sql = "INSERT INTO `fs_order_lines`(`id_order`, `id_product`, `quantity`, `amount`, `amount_usd`, `created_at`) VALUES ('" . Cart::getCurrentCart() . "','" . $cl['id_product'] . "','" . $cl['quantity'] . "','" . $cl['total'] . "','" . $cl['total_usd'] . "',NOW())";
+      foreach ($cart_lines as $fcl) {
+         $fp = Db::getInstance()->Execute("SELECT net_price ,net_price_usd  FROM fs_products WHERE id_product='" . $fcl['id_product'] . "'");
+         $total = ($fcl['total'] - ($fcl['total'] * ($fcl['discount_percentage'] / 100)) + ($fcl['total'] * ($fcl['tax_rate'] / 100)));
+         $total_usd = ($fcl['total_usd'] - ($fcl['total_usd'] * ($fcl['discount_percentage'] / 100)) + ($fcl['total_usd'] * ($fcl['tax_rate'] / 100)));
+         $sql = "INSERT INTO `fs_order_lines`(`id_order`, `id_product`, `quantity`, `price`, `price_usd`,`total`, `total_usd`,`discount_percentage`,`tax_rate`, `created_at`) VALUES ('" . Cart::getCurrentCart() . "','" . $fcl['id_product'] . "','" . $fcl['quantity'] . "','" . $fp['net_price'] . "','" . $fp['net_price_usd'] . "','" . $total . "','" . $total_usd . "','" . $fcl['discount_percentage'] . "','" . $fcl['tax_rate'] . "',NOW())";
          Db::getInstance()->Execute($sql);
       }
    }

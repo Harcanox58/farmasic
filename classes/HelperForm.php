@@ -155,7 +155,7 @@ class HelperForm
             $html .= $this->generateLabel($i);
             if ($this->vals($i['name'])) {
                $html .= '<div class="' . (isset($i['col']) && $i['col'] == true ? 'col-' . $i['col'] : 'col-4') . '">';
-               $html .= '<img class="figure-img img-thumbnail" src=' . (isset($i['save_path']) ? $i['save_path'] . $this->vals($i['name']) : '') . ' style="max-width:300px" /> <br>';
+               $html .= '<img id="reloadIMG" class="figure-img img-thumbnail" src=' . (isset($i['save_path']) ? $i['save_path'] . $this->vals($i['name']) : '') . ' style="max-width:300px" /> <br>';
                $html .= '<p class="text-gray mb-1">Tamaño del Archivo </p>';
                $html .= '<a class="btn btn-danger btn-sm"><i class="fas fa-trash mr-1"></i>Eliminar</a>';
                $html .= '</div>';

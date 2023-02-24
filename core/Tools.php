@@ -167,7 +167,7 @@ class Tools
         $protocol = empty($_SERVER['HTTPS']) ? 'http' : 'https';
         return $protocol . '://' . $_SERVER['SERVER_NAME'] . dirname($_SERVER['SCRIPT_NAME']) . '/';
     }
-    public static function moneyFormat($amount, $currency = 'BS', $useSimbol = true)
+    public static function moneyFormat($amount, $currency = 'BS', $useSimbol = true, $useReturns = false)
     {
         $decimals = 0;
         $dec_point = '';
@@ -188,10 +188,18 @@ class Tools
                 $simbol = 'Bs. ';
                 break;
         }
-        if ($useSimbol == false) {
-            echo number_format($amount, $decimals, $dec_point, $thousands_sep);
+        if (!$useReturns) {
+            if ($useSimbol == false) {
+                echo number_format($amount, $decimals, $dec_point, $thousands_sep);
+            } else {
+                echo $simbol . number_format($amount, $decimals, $dec_point, $thousands_sep);
+            }
         } else {
-            echo $simbol . number_format($amount, $decimals, $dec_point, $thousands_sep);
+            if ($useSimbol == false) {
+                return number_format($amount, $decimals, $dec_point, $thousands_sep);
+            } else {
+                return $simbol . number_format($amount, $decimals, $dec_point, $thousands_sep);
+            }
         }
     }
     public static function  displayPrice($price, $type = null)

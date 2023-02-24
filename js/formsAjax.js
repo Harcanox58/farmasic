@@ -80,6 +80,7 @@ function preXhr(progress) {
   return xhr;
 }
 function ajax_response(res) {
+  console.log(res);
   if (res.redirect) {
     window.location.href = res.redirect;
   }
@@ -103,6 +104,9 @@ function ajax_response(res) {
         window.location.replace(res.response.redirect);
       }
     }
+  }
+  if (res.reloadIMG) {
+    $("#reloadIMG").attr("src", res.reloadIMG);
   }
   res = null;
 }
