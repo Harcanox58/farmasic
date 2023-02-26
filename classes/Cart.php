@@ -221,9 +221,12 @@ class Cart
    }
    public static function getTotalBS()
    {
-      $sql = "SELECT price * " . Tools::getValue('quantity') . "  as price FROM fs_products WHERE id_product='" . Tools::getValue('product') . "'";
+      $sql = "SELECT price_suggested * " . Tools::getValue('quantity') . "  as price FROM fs_products WHERE id_product='" . Tools::getValue('product') . "'";
       $res = Db::getInstance()->Execute($sql);
       if (!empty($res)) {
+         // $discount = $res['price'] * (Cart::getDiscountPercentage() / 100);
+         // $tax = $res['price'] * (Cart::getTaxRate() / 100);
+         // $price = ($res['price'] - $discount) + $tax;
          return $res['price'];
       } else {
          return false;
@@ -231,9 +234,10 @@ class Cart
    }
    public static function getTotalUSD()
    {
-      $sql = "SELECT price_usd * " . Tools::getValue('quantity') . " as price_usd FROM fs_products WHERE id_product='" . Tools::getValue('product') . "'";
+      $sql = "SELECT price_suggested_usd * " . Tools::getValue('quantity') . " as price_usd FROM fs_products WHERE id_product='" . Tools::getValue('product') . "'";
       $res = Db::getInstance()->Execute($sql);
       if (!empty($res)) {
+         // $price = $res['price_usd'] - ($res['price_usd'] * (Cart::getDiscountPercentage() / 100)) + ($res['price_usd'] * (Cart::getTaxRate() / 100));
          return $res['price_usd'];
       } else {
          return false;

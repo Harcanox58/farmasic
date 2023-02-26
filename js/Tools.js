@@ -1,4 +1,17 @@
 $(document).ready(function () {
+  $("#btn-genPass").click(function () {
+    var password = "";
+    var str =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz0123456789@#$";
+
+    for (i = 1; i <= 12; i++) {
+      var char = Math.floor(Math.random() * str.length + 1);
+
+      password += str.charAt(char);
+    }
+    alert("Contraseña generada: " + password);
+    $(".generated-password").val(password);
+  });
   // sendAjaxRequest();
   if ($(".select2 option").attr("selected") == "selected") {
     $(".select2").val("-1").trigger("change");
@@ -112,7 +125,7 @@ function callInputMask() {
     },
   });
 }
-function changeStatusAJAX(ch, id) {
+function changeStatusWithAJAX(ch, id) {
   var checked = ch.checked ? 1 : 0;
   var form = new FormData();
   form.append("changeStatusAJAX", 1);
@@ -197,22 +210,7 @@ function error() {
     timer: 3000,
   });
 }
-function passGenerator() {
-  $("#password").val(generatePassword());
-}
-function generatePassword() {
-  var pass = "";
-  var str =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz0123456789@#$";
 
-  for (i = 1; i <= 12; i++) {
-    var char = Math.floor(Math.random() * str.length + 1);
-
-    pass += str.charAt(char);
-  }
-
-  return pass;
-}
 function formatMoney(number, decPlaces, decSep, thouSep) {
   (decPlaces = isNaN((decPlaces = Math.abs(decPlaces))) ? 2 : decPlaces),
     (decSep = typeof decSep === "undefined" ? "." : decSep);

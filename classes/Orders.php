@@ -14,6 +14,13 @@ class Orders
    }
    public static function validPaymentsInOrder()
    {
+      $sql = "SELECT CASE WHEN SUM(amount) >= (SELECT amount FROM fs_orders WHERE id_order=fp.id_order) THEN TRUE ELSE FALSE END AS is_valid, CASE WHEN SUM(amount_usd) >= (SELECT amount_usd FROM fs_orders WHERE id_order=fp.id_order) THEN TRUE ELSE FALSE END AS is_valid_usd FROM fs_payments fp WHERE id_order='" . Tools::getValue('id') . "'";
+      $res = Db::getInstance()->Execute($sql);
+      if ($res['is_valid'] && $res['is_valid_usd']) {
+         return true;
+      } else {
+         return false;
+      }
    }
    public static function getOrderByCustomers()
    {
@@ -27,7 +34,7 @@ class Orders
    }
    public static function getOrdersOpenByCustomers()
    {
-      $sql = "SELECT id_order, amount, amount_usd FROM " . _DB_PREFIX_ . "orders WHERE op_status='A' AND id_customer='" . Session::get('_uid') . "'";
+      $sql = "SELECT fo.id_order, CASE WHEN ( SELECT SUM( amount ) FROM fs_payments WHERE id_order = fo.id_order ) <= fo.amount THEN fo.amount - ( SELECT SUM( amount ) FROM fs_payments WHERE id_order = fo.id_order ) ELSE fo.amount END AS amount, CASE WHEN ( SELECT SUM( amount_usd ) FROM fs_payments WHERE id_order = fo.id_order ) <= fo.amount_usd THEN fo.amount_usd - ( SELECT SUM( amount_usd ) FROM fs_payments WHERE id_order = fo.id_order ) ELSE fo.amount_usd END AS amount_usd FROM fs_orders fo WHERE fo.op_status = 'A' AND fo.id_customer ='" . Session::get('_uid') . "'";
       $res = Db::getInstance()->ExecuteS($sql);
       if (!empty($res)) {
          return $res;
@@ -47,7 +54,7 @@ class Orders
    }
    public static function getPDFOrderLines($OrderId, $limit_inf, $limit_sup)
    {
-      $sql = "SELECT	`code`, `name`, quantity, ( quantity * units_per_pack ) AS units, price,(quantity * price) AS subtotal FROM fs_order_lines AS ol INNER JOIN fs_products AS p ON ol.id_product = p.id_product WHERE id_order ='" . $OrderId . "' LIMIT " . $limit_inf . "," . $limit_sup . ";";
+      $sql = "SELECT	`code`, `name`, quantity, ( quantity * units_per_pack ) AS units, ROUND(ol.price,2) AS price, ROUND(quantity * ol.price ,2) AS subtotal FROM fs_order_lines AS ol INNER JOIN fs_products AS p ON ol.id_product = p.id_product WHERE id_order ='" . $OrderId . "' LIMIT " . $limit_inf . "," . $limit_sup . ";";
       $res = Db::getInstance()->ExecuteS($sql);
       if (!empty($res)) {
          return $res;
@@ -164,10 +171,10 @@ class Orders
       $sql = "SELECT * FROM fs_cart_lines WHERE op_status<>'E' AND id_cart = '" . Cart::getCurrentCart() . "'";
       $cart_lines = Db::getInstance()->ExecuteS($sql);
       foreach ($cart_lines as $fcl) {
-         $fp = Db::getInstance()->Execute("SELECT net_price ,net_price_usd  FROM fs_products WHERE id_product='" . $fcl['id_product'] . "'");
+         $fp = Db::getInstance()->Execute("SELECT price_suggested ,price_suggested_usd  FROM fs_products WHERE id_product='" . $fcl['id_product'] . "'");
          $total = ($fcl['total'] - ($fcl['total'] * ($fcl['discount_percentage'] / 100)) + ($fcl['total'] * ($fcl['tax_rate'] / 100)));
          $total_usd = ($fcl['total_usd'] - ($fcl['total_usd'] * ($fcl['discount_percentage'] / 100)) + ($fcl['total_usd'] * ($fcl['tax_rate'] / 100)));
-         $sql = "INSERT INTO `fs_order_lines`(`id_order`, `id_product`, `quantity`, `price`, `price_usd`,`total`, `total_usd`,`discount_percentage`,`tax_rate`, `created_at`) VALUES ('" . Cart::getCurrentCart() . "','" . $fcl['id_product'] . "','" . $fcl['quantity'] . "','" . $fp['net_price'] . "','" . $fp['net_price_usd'] . "','" . $total . "','" . $total_usd . "','" . $fcl['discount_percentage'] . "','" . $fcl['tax_rate'] . "',NOW())";
+         $sql = "INSERT INTO `fs_order_lines`(`id_order`, `id_product`, `quantity`, `price`, `price_usd`,`total`, `total_usd`,`discount_percentage`,`tax_rate`, `created_at`) VALUES ('" . Cart::getCurrentCart() . "','" . $fcl['id_product'] . "','" . $fcl['quantity'] . "','" . $fp['price_suggested'] . "','" . $fp['price_suggested_usd'] . "','" . $total . "','" . $total_usd . "','" . $fcl['discount_percentage'] . "','" . $fcl['tax_rate'] . "',NOW())";
          Db::getInstance()->Execute($sql);
       }
    }
@@ -219,7 +226,7 @@ class Orders
       if (!empty($res)) {
          return $res['op_invoice_type'];
       } else {
-         return false;
+         return 'NULO';
       }
    }
    public static function getInvoicesByCustomer()
@@ -238,6 +245,16 @@ class Orders
       Db::getInstance()->Execute('SET @num_row=0;');
       $sql = "SELECT (@num_row:=@num_row+1) AS num_row, i.id_invoice, i.id_order, i.created_at,i.amount,i.amount_usd, CASE WHEN i.op_invoice_type='F' THEN 'FACTURA DE VENTA' ELSE 'NOTA DE VENTA' END AS invoice_type, CASE WHEN r.role_type='A' THEN CONCAT(e.firstname,' ',e.lastname) ELSE CONCAT(e.company_name) END AS name,CONCAT(op_invoice_type,'-',LPAD(i.corelative,6,'0')) AS corelative FROM fs_invoices AS i INNER JOIN fs_entities AS e ON e.id_entity=i.id_entity INNER JOIN fs_roles as r ON r.id_role=e.id_role ";
       $res = Db::getInstance()->ExecuteS($sql);
+      if (!empty($res)) {
+         return $res;
+      } else {
+         return false;
+      }
+   }
+   public static function getPDFInvoiceTaxes($orderId)
+   {
+      $sql = "SELECT ROUND(SUM(quantity * ol.price),2) AS subtotal, ROUND(SUM(quantity *(ol.price * (ol.discount_percentage /100))),2) AS discounts, ROUND(SUM(quantity * (ol.price * (ol.tax_rate /100))),2) as feed FROM fs_order_lines AS ol INNER JOIN fs_products AS p ON ol.id_product = p.id_product WHERE id_order ='" . $orderId . "'";
+      $res = Db::getInstance()->Execute($sql);
       if (!empty($res)) {
          return $res;
       } else {

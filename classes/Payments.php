@@ -13,8 +13,8 @@ class Payments
    }
    public static function reportPayment()
    {
-      Tools::fileUpload('img', IMG_DIR . 'cp/' . Session::get('_uid') . '/');
-      Tools::fileUpload('img_psicotropicos', IMG_DIR . 'cp/' . Session::get('_uid') . '/');
+      Tools::fileUpload('img', IMG_DIR . 'cp/' . Tools::getValue('order') . '/');
+      Tools::fileUpload('img_psicotropicos', IMG_DIR . 'cp/' . Tools::getValue('order') . '/');
 
       $comprobante = Tools::getValue('img')['name'];
       $psicotripico = Tools::getValue('img_psicotropicos')['name'];
@@ -38,6 +38,16 @@ class Payments
          ]);
       } catch (\Throwable $th) {
          //throw $th;
+      }
+   }
+   public static function getTotalPaymentPerOrder()
+   {
+      $sql = "SELECT CASE WHEN SUM(amount) > 0 THEN SUM(amount) ELSE 0 END AS amount ,CASE WHEN SUM(amount_usd) > 0 THEN SUM(amount_usd) ELSE 0 END AS amount_usd FROM fs_payments WHERE id_order='" . Tools::getValue('id') . "' AND op_status = 'A'";
+      $res = Db::getInstance()->Execute($sql);
+      if (!empty($res)) {
+         return $res;
+      } else {
+         return false;
       }
    }
    public static function report()
@@ -95,13 +105,16 @@ class Payments
    }
    public static function getPaymentsById()
    {
-      $sql = "SELECT p.created_at, p.op_currency,p.id_order, p.id_payment,p.op_status, pm.`name` AS method, CASE WHEN p.op_status='A' THEN 'APROBADO' WHEN p.op_status='R' THEN 'RECHAZADO' ELSE 'PENDIENTE' END AS status,p.reference,b.num_account,b.`name`AS name_bank, p.amount,CONCAT(b.name,' (',b.num_account,')') AS bank, CASE WHEN p.op_currency = 1 THEN 'BOLIVARES' ELSE 'DÓLARES' END AS currency FROM fs_payments AS p INNER JOIN fs_payment_methods AS pm ON p.id_payment_method = pm.id_payment_menthod INNER JOIN fs_banks AS b ON p.id_bank=b.id_bank WHERE p.id_payment ='" . Tools::getValue('id') . "' ORDER BY p.id_payment";
+      $sql = "SELECT p.created_at, p.op_currency, LPAD(p.id_order,6,'0') AS id_order,p.id_order AS folder, p.id_payment,p.op_status, p.img_support,p.img_psycho, pm.`name` AS method, CASE WHEN p.op_status='A' THEN 'APROBADO' WHEN p.op_status='R' THEN 'RECHAZADO' ELSE 'PENDIENTE' END AS status,p.reference,b.num_account,b.`name`AS name_bank, p.amount,p.amount_usd,CONCAT(b.name,' (',b.num_account,')') AS bank, CASE WHEN p.op_currency = 1 THEN 'BOLIVARES' ELSE 'DÓLARES' END AS currency FROM fs_payments AS p INNER JOIN fs_payment_methods AS pm ON p.id_payment_method = pm.id_payment_menthod INNER JOIN fs_banks AS b ON p.id_bank=b.id_bank WHERE p.id_payment ='" . Tools::getValue('id') . "' ORDER BY p.id_payment";
       $res = Db::getInstance()->Execute($sql);
       if (!empty($res)) {
          return $res;
       } else {
          return false;
       }
+   }
+   public static function getPaymentDocs()
+   {
    }
    public static function getBanks()
    {

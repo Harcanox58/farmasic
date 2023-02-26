@@ -181,11 +181,9 @@ class HelperForm
          default:
             $html .= '<div class="row form-group">';
             $html .= $this->generateLabel($i);
-            $col =  $i['type'] == 'password' ? 'col-3' : (isset($i['col']) && $i['col'] == true ? 'col-' . $i['col'] : 'col-4');
-            $html .= '<div class="' . $col . '">';
-            $html .= '<input ' . (isset($i['disabled']) && $i['disabled'] == true ? 'disabled' : '') . ' type="' . $i['type'] . '" class="form-control ' . ($i['type'] == 'password' ? 'generated-password' : '') . ' form-control-sm ' . (isset($i['class']) ? $i['class'] : '') . '" id="' . $i['name'] . '" name="' . $i['name'] . '" value="' . ($i['type'] == 'date' && !empty($this->vals($i['name']))  ?  date("Y-m-d", strtotime($this->vals($i['name']))) : $this->vals($i['name'])) . (isset($i['value']) ? $i['value'] : '') . '" placeholder="" ' . (isset($i['required']) && $i['required'] == true ? 'required' : '') . '>';
+            $html .= '<div class="' . (isset($i['col']) && $i['col'] == true ? 'col-' . $i['col'] : 'col-4') . '">';
+            $html .= '<input ' . (isset($i['disabled']) && $i['disabled'] == true ? 'disabled' : '') . ' type="' . $i['type'] . '" class="form-control form-control-sm ' . (isset($i['class']) ? $i['class'] : '') . '" id="' . $i['name'] . '" name="' . $i['name'] . '" value="' . ($i['type'] == 'date' && !empty($this->vals($i['name']))  ?  date("Y-m-d", strtotime($this->vals($i['name']))) : $this->vals($i['name'])) . (isset($i['value']) ? $i['value'] : '') . '" placeholder="" ' . (isset($i['required']) && $i['required'] == true ? 'required' : '') . '>';
             $html .= '</div>';
-            $html .= $i['type'] == 'password' ? '<div class="col-1"><button type="button" id="btn-genPass" onClick="genPassword()" class="btn btn-sm btn-default">Generar</button></div>' : '';
             $html .= '</div>';
             break;
       }

@@ -264,8 +264,8 @@ class Catalog
       $price_suggested = $newPrice + $profitSuggested;
       $netPrice = $newPrice - $percentage;
       $netPrice_usd = $price - $percentage_usd;
-      $price_unit = $newPrice / $per_pack;
-      $price_unit_usd = $price / $per_pack;
+      $price_unit = $per_pack != 0 ? $netPrice  / (int)$per_pack : 0;
+      $price_unit_usd = $per_pack != 0 ? $price / (int)$$per_pack : 0;
       return [
          'price_cost' => $price_cost,
          'profit_margin' => $profit_margin,

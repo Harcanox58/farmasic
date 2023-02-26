@@ -115,17 +115,15 @@ class Customers
    }
    public static function getDocumentStatus($document)
    {
-      $sql = "SELECT expire_date FROM `" . _DB_PREFIX_ . "documents` WHERE id_entity='" . Session::get('_uid') . "' AND op_document_type='" . $document . "'";
+      $sql = "SELECT CASE WHEN DATE_FORMAT(expire_date,'%d-%m-%Y') <= DATE_FORMAT(NOW(),'%d-%-%Y') THEN 'VENCIDO' ELSE 'VIGENTE' END AS `status` FROM `fs_documents` WHERE id_entity='" . Session::get('_uid') . "' AND op_document_type='" . $document . "'";
       $res = Db::getInstance()->Execute($sql);
       if (empty($res)) {
          return ' <span class="badge badge-warning">Nulo</span>';
       } else {
-         $date1 = strtotime($res['expire_date']);
-         $date2 = strtotime(date('Y-m-d'));
-         if ($date1 < $date2) {
-            return ' <span class="badge badge-danger">Vencido</span>';
-         } else {
+         if ($res['status'] == 'VIGENTE') {
             return ' <span class="badge badge-info">Vigente</span>';
+         } else {
+            return ' <span class="badge badge-danger">Vencido</span>';
          }
       }
    }
@@ -140,7 +138,7 @@ class Customers
    }
    public static function getDocumentValid($doc)
    {
-      $sql = "SELECT expire_date, NOW(), CASE WHEN DATE_FORMAT(expire_date,'%d-%m-%Y') >= DATE_FORMAT(NOW(),'%d-%-%Y') THEN TRUE ELSE FALSE END AS valid  FROM `fs_documents` WHERE id_entity='" . Session::get('_uid') . "' AND op_document_type='" . $doc . "'";
+      $sql = "SELECT expire_date, NOW(), CASE WHEN DATE_FORMAT(expire_date,'%d-%m-%Y') <= DATE_FORMAT(NOW(),'%d-%-%Y') THEN FALSE ELSE TRUE END AS valid  FROM `fs_documents` WHERE id_entity='" . Session::get('_uid') . "' AND op_document_type='" . $doc . "'";
       $res = Db::getInstance()->Execute($sql);
       if ($res['valid'] != 0) {
          return true;
@@ -149,7 +147,7 @@ class Customers
    }
    public static function validDocuments()
    {
-      if (self::getDocumentValid(1) && self::getDocumentValid(2) && self::getDocumentValid(3)) {
+      if (Customers::getDocumentValid(1) && Customers::getDocumentValid(2) && Customers::getDocumentValid(3)) {
          return true;
       } else {
          return false;
