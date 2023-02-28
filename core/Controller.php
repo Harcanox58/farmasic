@@ -107,7 +107,7 @@ class Controller
       $html = '';
       $visible = '';
       foreach ($items as $item) {
-         if (Acl::check($item['permission_name']) && $type == 'A') {
+         if (!Acl::check($item['permission_name']) && $type == 'A') {
             $visible = 'style="visibility:hidden;"';
          } else {
             $visible = '';
@@ -124,7 +124,7 @@ class Controller
             $html .= '   </a>';
             $html .= '   <ul class="nav nav-treeview">';
             foreach ($subitems as $item) {
-               if (Acl::check($item['permission_name']) && $type == 'A') {
+               if (!Acl::check($item['permission_name']) && $type == 'A') {
                   $visible = 'style="visibility:hidden;"';
                } else {
                   $visible = '';
