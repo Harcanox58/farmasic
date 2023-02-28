@@ -42,7 +42,7 @@ class Mailer
          return true;
          // echo 'Message has been sent';
       } catch (\Throwable $th) {
-         throw $th;
+         // throw $th;
          return false;
       }
    }
