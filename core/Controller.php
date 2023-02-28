@@ -109,6 +109,8 @@ class Controller
       foreach ($items as $item) {
          if (Acl::check($item['permission_name']) && $type == 'A') {
             $visible = 'style="visibility:hidden;"';
+         } else {
+            $visible = '';
          }
          if ($item['is_parent'] <> 0) {
             $subitems = Db::getInstance()->ExecuteS("SELECT * FROM `fs_menu_items` as m WHERE type='" . $type . "' AND m.is_child='1' AND id_parent='" . $item['id_menu_item'] . "' AND m.is_active='1' ORDER BY	num_order ASC;");
@@ -124,6 +126,8 @@ class Controller
             foreach ($subitems as $item) {
                if (Acl::check($item['permission_name']) && $type == 'A') {
                   $visible = 'style="visibility:hidden;"';
+               } else {
+                  $visible = '';
                }
                $html .= '      <li class="nav-item" ' . $visible . '>';
                if ($type == 'F') {
