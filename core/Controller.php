@@ -122,7 +122,7 @@ class Controller
             $html .= '         <i class="right fas fa-angle-left"></i>';
             $html .= '      </p>';
             $html .= '   </a>';
-            $html .= '   <ul class="nav nav-treeview">';
+            $html .= '   <ul class="nav nav-treeview" ' . $visible . '>';
             foreach ($subitems as $item) {
                if (!Acl::check($item['permission_name']) && $type == 'A') {
                   $visible = 'style="visibility:hidden;"';
