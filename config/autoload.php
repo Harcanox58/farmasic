@@ -3,6 +3,7 @@ spl_autoload_register(function ($className) {
     $arr_dir = array(
         realpath(dirname(__FILE__)),
         ROOT_DIR . '/pdf/',
+        CLASSES_DIR
     );
     $arr_ext = array(
         '.php',

@@ -22,8 +22,26 @@ class Users
    }
    public static function setUser()
    {
+      $res = Db::getInstance()->Execute("SELECT * FROM fs_entities WHERE id_entity='" . Tools::getValue('id') . "'");
+      if (empty($res)) {
+         $hash = !empty(Tools::getValue('password')) ? Hash::make(Tools::getValue('password')) : 'NULL';
+         $sql = "INSERT INTO `fs_entities`(`id_role`,`firstname`, `lastname`, `username`, `email`, `password`, `address`,`phone`, `op_city`, `op_state`, `op_country`,`is_deleted`, `op_status`) VALUES ('" . Tools::getValue('role') . "','[" . Tools::getValue('firstname') . "','" . Tools::getValue('lastname') . "','" . Tools::getValue('username') . "','" . Tools::getValue('email') . "','" . $hash . "','" . Tools::getValue('address') . "','" . Tools::getValue('phone') . "','" . Tools::getValue('op_city') . "','" . Tools::getValue('op_state') . "','" . Tools::getValue('op_country') . "','0','A')";
+      } else {
+         $hash = !empty(Tools::getValue('password')) ? "`password`='" . Hash::make(Tools::getValue('password')) . "'," : '';
+         $sql = "UPDATE `fs_entities` SET `id_role`='" . Tools::getValue('role') . "',`firstname`='" . Tools::getValue('firstname') . "',`lastname`='" . Tools::getValue('lastname') . "',`username`='" . Tools::getValue('username') . "',`email`='" . Tools::getValue('email') . "'," . $hash . "`address`='" . Tools::getValue('address') . "',`phone`='" . Tools::getValue('phone') . "',`op_city`='" . Tools::getValue('op_city') . "',`op_state`='" . Tools::getValue('op_state') . "',`op_country`='" . Tools::getValue('op_country') . "' WHERE id_entity='" . Tools::getValue('id') . "'";
+      }
+      try {
+         Db::getInstance()->Execute($sql);
+         Tools::response('success', 'Datos Guardados.');
+      } catch (PDOException $e) {
+      }
    }
-   public static function remUserById()
+   public static function removeUser()
    {
+      $sql = "UPDATE `fs_entities` SET `is_active`='0',`is_deleted`='1',`op_status`='E' WHERE id_entity='" . Tools::getValue('id') . "'";
+      try {
+         Db::getInstance()->Execute($sql);
+      } catch (PDOException $e) {
+      }
    }
 }

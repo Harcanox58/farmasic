@@ -109,6 +109,7 @@ class HelperForm
    }
    public function generateInput($input)
    {
+
       $html = '';
       $i = $input;
       switch ($i['type']) {
@@ -117,8 +118,8 @@ class HelperForm
             $html .= $this->generateLabel($i);
             $html .= '<div class="' . (isset($i['col']) && $i['col'] == true ? 'col-' . $i['col'] : 'col-4') . '">';
             $html .= '<div class="custom-control custom-switch">';
-            $html .= '<input ' . (isset($i['disabled']) && $i['disabled'] == true ? 'disabled' : '') . ' type="checkbox" class="custom-control-input" id="customSwitch1" name="' . $i['name'] . '" ' . (isset($i['required']) && $i['required'] == true ? 'required' : '') . '>';
-            $html .= '<label class="custom-control-label" for="customSwitch1"></label>';
+            $html .= '<input ' . (isset($i['disabled']) && $i['disabled'] == true ? 'disabled' : '') . ' type="checkbox" class="custom-control-input" id="customSwitch-' . $i['name'] . '" ' . ($this->vals($i['name']) == true ? 'checked' : '') . ' name="' . $i['name'] . '" ' . (isset($i['required']) && $i['required'] == true ? 'required' : '') . '>';
+            $html .= '<label class="custom-control-label" for="customSwitch-' . $i['name'] . '"></label>';
             $html .= '</div>';
             $html .= '</div>';
             $html .= '</div>';

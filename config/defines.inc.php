@@ -28,6 +28,9 @@ if (!defined('MODULE_DIR')) {
 if (!defined('CONFIG_DIR')) {
     define('CONFIG_DIR', CURRENT_DIR . '/config/');
 }
+if (!defined('CLASSES_DIR')) {
+    define('CLASSES_DIR', CURRENT_DIR . '/classes/');
+}
 // if (!defined('IMGAES_DIR')) {
 //     define('IMGAES_DIR', ROOT_DIR . '/images/');
 // }

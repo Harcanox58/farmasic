@@ -259,7 +259,7 @@ class Tools
     }
     public static function response($type, $message)
     {
-        return Tools::ajaxResponse(['type' => $type, 'message' => $message]);
+        Tools::ajaxResponse(['response' => ['type' => $type, 'message' => $message]]);
     }
     public static function clearUSD($value)
     {

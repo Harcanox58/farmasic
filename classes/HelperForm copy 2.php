@@ -1,5 +1,5 @@
 <?php
-class HelperForm
+class HelperFormbk2
 {
    public $submit_action, $form_type = 'form-ajax', $method = 'POST', $field_vals, $size = 12, $label_size = 4;
    public $formTabs;

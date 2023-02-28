@@ -160,6 +160,43 @@ function sendAjaxRequest() {
     });
   });
 }
+function changePermissionWithAJAX(ch, permission, permission_id, role_id) {
+  var checked = ch.checked ? 1 : 0;
+  var form = new FormData();
+  form.append("changePermissionAJAX", 1);
+  form.append("permission_id", permission_id);
+  form.append("role_id", role_id);
+  form.append("permission", permission);
+  form.append("value", checked);
+  $.ajax({
+    type: "POST",
+    data: form,
+    cache: false,
+    contentType: false,
+    processData: false,
+    success: function (data) {
+      ajax_response(data);
+    },
+  });
+}
+function sendAjaxRequest() {
+  $(".ajaxRequest").submit(function (e) {
+    console.log("ajax request");
+    e.preventDefault();
+    var form = new FormData(this);
+    form.append("request", true);
+    $.ajax({
+      type: "POST",
+      data: form,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function (data) {
+        ajax_response(data);
+      },
+    });
+  });
+}
 function removeAJAX(id) {
   var form = new FormData();
   form.append("removeAJAX", 1);
