@@ -105,60 +105,94 @@ class Controller
    {
       $items = Db::getInstance()->ExecuteS("SELECT * FROM `fs_menu_items` as m WHERE type='" . $type . "' AND m.is_child=0 AND m.is_active=1 ORDER BY num_order ASC;");
       $html = '';
-      $visible = '';
       foreach ($items as $item) {
-         if (!Acl::check($item['permission_name']) && $type == 'A') {
-            $visible = 'style="visibility:hidden;"';
-         } else {
-            $visible = '';
-         }
          if ($item['is_parent'] <> 0) {
             $subitems = Db::getInstance()->ExecuteS("SELECT * FROM `fs_menu_items` as m WHERE type='" . $type . "' AND m.is_child='1' AND id_parent='" . $item['id_menu_item'] . "' AND m.is_active='1' ORDER BY	num_order ASC;");
-            $html .= '<li class="nav-item" ' . $visible . '>';
-            $html .= '<a href="#" class="nav-link">';
-            $html .= ' <i class="text-md nav-icon ' . $item['icon'] . '"></i>';
-            $html .= '      <p class="text-xs">';
-            $html .= $item['name'];
-            $html .= '         <i class="right fas fa-angle-left"></i>';
-            $html .= '      </p>';
-            $html .= '   </a>';
-            $html .= '   <ul class="nav nav-treeview" ' . $visible . '>';
-            foreach ($subitems as $item) {
-               if (!Acl::check($item['permission_name']) && $type == 'A') {
-                  $visible = 'style="visibility:hidden;"';
-               } else {
-                  $visible = '';
-               }
-               $html .= '      <li class="nav-item" ' . $visible . '>';
-               if ($type == 'F') {
-                  $html .= '         <a href="' . Tools::baseUrl() . $item['link'] . '" class="nav-link">';
-               } else {
-                  $html .= '         <a href="' . Tools::baseUrl()  . '?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link {if isset($template.active)}{$template.active}{/if}">';
-               }
-               // $html .= ' <i class="text-sm nav-icon ' . $item['icon'] . '"></i>';
-               $html .= ' <p class="text-xs">';
+            if (Acl::check($item['permission_name']) && $type == 'A') {
+               $html .= '<li class="nav-item">';
+               $html .= '<a href="#" class="nav-link">';
+               $html .= ' <i class="text-md nav-icon ' . $item['icon'] . '"></i>';
+               $html .= '      <p class="text-xs">';
                $html .= $item['name'];
-               $html .= ' </p>';
-               $html .= '         </a>';
-               $html .= '      </li>';
+               $html .= '         <i class="right fas fa-angle-left"></i>';
+               $html .= '      </p>';
+               $html .= '   </a>';
+               $html .= '   <ul class="nav nav-treeview">';
+               foreach ($subitems as $item) {
+                  if (Acl::check($item['permission_name']) && $type == 'A') {
+                     $html .= '      <li class="nav-item">';
+                     if ($type == 'F') {
+                        $html .= '         <a href="' . Tools::baseUrl() . $item['link'] . '" class="nav-link">';
+                     } else {
+                        $html .= '         <a href="' . Tools::baseUrl()  . '?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link {if isset($template.active)}{$template.active}{/if}">';
+                     }
+                     // $html .= ' <i class="text-sm nav-icon ' . $item['icon'] . '"></i>';
+                     $html .= ' <p class="text-xs">';
+                     $html .= $item['name'];
+                     $html .= ' </p>';
+                     $html .= '         </a>';
+                     $html .= '      </li>';
+                  }
+               }
+               $html .= '   </ul>';
+               $html .= '</li>';
+            } elseif ($type == 'F') {
+               $html .= '<li class="nav-item">';
+               $html .= '<a href="#" class="nav-link">';
+               $html .= ' <i class="text-md nav-icon ' . $item['icon'] . '"></i>';
+               $html .= '      <p class="text-xs">';
+               $html .= $item['name'];
+               $html .= '         <i class="right fas fa-angle-left"></i>';
+               $html .= '      </p>';
+               $html .= '   </a>';
+               $html .= '   <ul class="nav nav-treeview">';
+               foreach ($subitems as $item) {
+                  $html .= '      <li class="nav-item">';
+                  if ($type == 'F') {
+                     $html .= '         <a href="' . Tools::baseUrl() . $item['link'] . '" class="nav-link">';
+                  } else {
+                     $html .= '         <a href="' . Tools::baseUrl()  . '?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link {if isset($template.active)}{$template.active}{/if}">';
+                  }
+                  // $html .= ' <i class="text-sm nav-icon ' . $item['icon'] . '"></i>';
+                  $html .= ' <p class="text-xs">';
+                  $html .= $item['name'];
+                  $html .= ' </p>';
+                  $html .= '         </a>';
+                  $html .= '      </li>';
+               }
                $html .= '   </ul>';
                $html .= '</li>';
             }
          } elseif ($item['is_header'] <> 0) {
             $html .= '<li class="nav-header text-xs"><b style="text-transform: uppercase;">' . $item['name'] . '</b></li>';
          } else {
-            $html .= '<li class="nav-item" ' . $visible . '>';
-            if ($type == 'F') {
-               $html .= '<a href="' . Tools::baseUrl() . $item['link'] . '" class="nav-link text-sm">';
-            } else {
-               $html .= ' <a href="' . Tools::baseUrl()  . '?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link">';
+            if (Acl::check($item['permission_name']) && $type == 'A') {
+               $html .= '<li class="nav-item">';
+               if ($type == 'F') {
+                  $html .= '<a href="' . Tools::baseUrl() . $item['link'] . '" class="nav-link text-sm">';
+               } else {
+                  $html .= ' <a href="' . Tools::baseUrl()  . '?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link">';
+               }
+               $html .= ' <i class="text-md nav-icon ' . $item['icon'] . '"></i>';
+               $html .= ' <p class="text-xs">';
+               $html .= $item['name'];
+               $html .= ' </p>';
+               $html .= '</a>';
+               $html .= ' </li>';
+            } elseif ($type == 'F') {
+               $html .= '<li class="nav-item">';
+               if ($type == 'F') {
+                  $html .= '<a href="' . Tools::baseUrl() . $item['link'] . '" class="nav-link text-sm">';
+               } else {
+                  $html .= ' <a href="' . Tools::baseUrl()  . '?controller=' . $item['link'] . '&token=' . Tools::getValue('token') . '" class="nav-link">';
+               }
+               $html .= ' <i class="text-md nav-icon ' . $item['icon'] . '"></i>';
+               $html .= ' <p class="text-xs">';
+               $html .= $item['name'];
+               $html .= ' </p>';
+               $html .= '</a>';
+               $html .= ' </li>';
             }
-            $html .= ' <i class="text-md nav-icon ' . $item['icon'] . '"></i>';
-            $html .= ' <p class="text-xs">';
-            $html .= $item['name'];
-            $html .= ' </p>';
-            $html .= '</a>';
-            $html .= ' </li>';
          }
       }
       if ($type == 'F') {
